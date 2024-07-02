@@ -1,0 +1,31 @@
+<settings>
+    <servers>
+  <server>
+    <id>nextwork-webapp-artifacts-devops-repo</id>
+    <username>aws</username>
+    <password>${env.CODEARTIFACT_AUTH_TOKEN}</password>
+  </server>
+</servers>
+<profiles>
+  <profile>
+    <id>nextwork-webapp-artifacts-devops-repo</id>
+    <activation>
+      <activeByDefault>true</activeByDefault>
+    </activation>
+    <repositories>
+      <repository>
+        <id>nextwork-webapp-artifacts-devops-repo</id>
+        <url>https://nextwork-webapp-artifacts-339712879062.d.codeartifact.ap-southeast-1.amazonaws.com/maven/devops-repo/</url>
+      </repository>
+    </repositories>
+  </profile>
+</profiles>
+<mirrors>
+  <mirror>
+    <id>nextwork-webapp-artifacts-devops-repo</id>
+    <name>nextwork-webapp-artifacts-devops-repo</name>
+    <url>https://nextwork-webapp-artifacts-339712879062.d.codeartifact.ap-southeast-1.amazonaws.com/maven/devops-repo/</url>
+    <mirrorOf>*</mirrorOf>
+  </mirror>
+</mirrors>
+</settings>
