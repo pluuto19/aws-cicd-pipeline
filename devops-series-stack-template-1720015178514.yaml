@@ -1,0 +1,195 @@
+---
+Metadata:
+  TemplateId: "arn:aws:cloudformation:ap-southeast-1:339712879062:generatedTemplate/230d5d89-8249-4de6-b8f2-c6b7a68b5598"
+Resources:
+  # CodeArtifact Local Store Template for CloudFormation
+  CodeArtifactRepository00repositorynextworkwebappartifactsdevopscodeartifact009VhZ1:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::CodeArtifact::Repository"
+    DeletionPolicy: "Delete"
+    Properties:
+      DomainName:
+        Fn::GetAtt:
+        - "CodeArtifactDomain00domainnextworkwebappartifacts00uqa3b"
+        - "Name"
+      Upstreams:
+      - Fn::GetAtt:
+        - "CodeArtifactRepository00repositorynextworkwebappartifactsmavencentralstore00vagLG"
+        - "Name"
+      RepositoryName: "devops-codeartifact"
+  # IAM Base Policy for CodeBuild
+  IAMManagedPolicy00policyserviceroleCodeBuildBasePolicydevopsbuildapsoutheast100nLxHl:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Delete"
+    DependsOn: "IAMRole00codebuilddevopsbuildservicerole000kD23"
+    Properties:
+      ManagedPolicyName: "CodeBuildBasePolicy-devops-build-ap-southeast-1"
+      Path: "/service-role/"
+      Description: "Policy used in trust relationship with CodeBuild"
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource:
+          - "arn:aws:logs:ap-southeast-1:339712879062:log-group:/aws/codebuild/devops-build"
+          - "arn:aws:logs:ap-southeast-1:339712879062:log-group:/aws/codebuild/devops-build:*"
+          Action:
+          - "logs:CreateLogGroup"
+          - "logs:CreateLogStream"
+          - "logs:PutLogEvents"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:s3:::codepipeline-ap-southeast-1-*"
+          Action:
+          - "s3:PutObject"
+          - "s3:GetObject"
+          - "s3:GetObjectVersion"
+          - "s3:GetBucketAcl"
+          - "s3:GetBucketLocation"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:codecommit:ap-southeast-1:339712879062:devops-series"
+          Action:
+          - "codecommit:GitPull"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:s3:::asher-devops-bucket"
+          - "arn:aws:s3:::asher-devops-bucket/*"
+          Action:
+          - "s3:PutObject"
+          - "s3:GetBucketAcl"
+          - "s3:GetBucketLocation"
+          Effect: "Allow"
+        - Resource:
+          - "arn:aws:codebuild:ap-southeast-1:339712879062:report-group/devops-build-*"
+          Action:
+          - "codebuild:CreateReportGroup"
+          - "codebuild:CreateReport"
+          - "codebuild:UpdateReport"
+          - "codebuild:BatchPutTestCases"
+          - "codebuild:BatchPutCodeCoverages"
+          Effect: "Allow"
+      Roles:
+      - "codebuild-devops-build-service-role"
+      Users: []
+  # CodeaArtifact Maven Store Template for CloudFormation
+  CodeArtifactRepository00repositorynextworkwebappartifactsmavencentralstore00vagLG:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::CodeArtifact::Repository"
+    DeletionPolicy: "Delete"
+    Properties:
+      RepositoryName: "maven-central-store"
+      Description: "Provides Maven artifacts from Maven Central Repository."
+      ExternalConnections:
+      - "public:maven-central"
+      DomainName:
+        Fn::GetAtt:
+        - "CodeArtifactDomain00domainnextworkwebappartifacts00uqa3b"
+        - "Name"
+  # CodeArtifact Domain Template for CloudFormation
+  CodeArtifactDomain00domainnextworkwebappartifacts00uqa3b:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::CodeArtifact::Domain"
+    DeletionPolicy: "Delete"
+    Properties:
+      DomainName: "nextwork-webapp-artifacts"
+  # CodeArtifact Consumer Policy
+  IAMManagedPolicy00policycodeartifactnextworkconsumerpolicy00HjqpF:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::IAM::ManagedPolicy"
+    DeletionPolicy: "Delete"
+    DependsOn: "IAMRole00codebuilddevopsbuildservicerole000kD23"
+    Properties:
+      ManagedPolicyName: "codeartifact-nextwork-consumer-policy"
+      Path: "/"
+      Description: "Provides permissions to read from CodeArtifact."
+      Groups: []
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Resource: "*"
+          Action:
+          - "codeartifact:GetAuthorizationToken"
+          - "codeartifact:ReadFromRepository"
+          - "codeartifact:GetRepositoryEndpoint"
+          Effect: "Allow"
+          Sid: "VisualEditor0"
+        - Condition:
+            StringEquals:
+              sts:AWSServiceName: "codeartifact.amazonaws.com"
+          Resource: "*"
+          Action: "sts:GetServiceBearerToken"
+          Effect: "Allow"
+          Sid: "VisualEditor1"
+      Roles:
+      - "codebuild-devops-build-service-role"
+      Users: []
+  # IAM Service Role for CodeBuild
+  IAMRole00codebuilddevopsbuildservicerole000kD23:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::IAM::Role"
+    DeletionPolicy: "Delete"
+    Properties:
+      Path: "/service-role/"
+      MaxSessionDuration: 3600
+      RoleName: "codebuild-devops-build-service-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "codebuild.amazonaws.com"
+  # S3 Bucket Policy for IAM
+  S3Bucket00asherdevopsbucket00EfkFH:
+    UpdateReplacePolicy: "Delete"
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: "Delete"
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: "asher-devops-bucket"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+  # CodeCommit Repository
+  CodeCommitRepository:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: nextwork-web-project
+      RepositoryDescription: A web application for the NextWork home page
+  # CodeBuild Project
+  CodeBuildProject:
+    DependsOn: "IAMRole00codebuilddevopsbuildservicerole000kD23"
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: nextwork-web-build
+      Description: Build project for NextWork web application
+      Source:
+        Type: CODECOMMIT
+        Location: !GetAtt CodeCommitRepository.CloneUrlHttp
+        BuildSpec: buildspec.yml
+      Artifacts:
+        Type: S3
+        Name: nextwork-web-build.zip
+        Packaging: ZIP
+        Location: !Ref S3Bucket00asherdevopsbucket00EfkFH
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:corretto8
+      ServiceRole: !GetAtt IAMRole00codebuilddevopsbuildservicerole000kD23.Arn
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: nextwork-build-logs
+          Status: ENABLED
+          StreamName: webapp
